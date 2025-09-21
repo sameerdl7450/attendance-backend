@@ -1,8 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
 const app = express();
+
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -13,17 +13,19 @@ app.get("/", (req, res) => {
   res.send("Attendance Backend Running ✅");
 });
 
-// Mark attendance
+// Mark attendance (Updated to accept subject)
 app.post("/mark-attendance", (req, res) => {
-  const { roll, name, status } = req.body;
+  const { roll, name, status, subject } = req.body; // Subject added
   const time = new Date().toLocaleString();
 
-  // Check if student already marked present
-  const exists = attendanceData.find(item => item.roll === roll);
-  if (exists) return res.json({ message: "Attendance already marked!" });
+  // Check if student already marked present for the same subject
+  const exists = attendanceData.find(item => item.roll === roll && item.subject === subject);
+  if (exists) {
+    return res.json({ message: `Attendance already marked for ${subject}!` });
+  }
 
-  attendanceData.push({ roll, name, status, time });
-  res.json({ message: "Attendance marked successfully!", data: { roll, name, status, time } });
+  attendanceData.push({ roll, name, status, subject, time }); // Subject saved
+  res.json({ message: `Attendance for ${subject} marked successfully!`, data: { roll, name, status, subject, time } });
 });
 
 // Get all attendance (for monitor)
